@@ -55,6 +55,7 @@
     right: 10px;
     display: flex;
     align-items: flex-end;
+    z-index: 10;
   }
   #gardener {
     width: 120px;
@@ -140,7 +141,7 @@ function toggleMusic(){
 function showMessage(text){
   speechBubble.textContent=text;
   speechBubble.style.display="block";
-  setTimeout(()=>{ speechBubble.style.display="none"; },4000);
+  setTimeout(()=>{ speechBubble.style.display="none"; },5000); // ⏳ mensajes más largos
 }
 
 function startGame(){
@@ -173,7 +174,7 @@ function renderElements(){
     div.className="element";
     div.textContent=icons[i];
     div.dataset.index=i;
-    // 🔧 corrección aquí: usar dataset en vez de i directo
+    // ✅ corrección falsos negativos: tomar siempre dataset
     div.addEventListener("click", () => {
       handleClick(parseInt(div.dataset.index), div);
     });
