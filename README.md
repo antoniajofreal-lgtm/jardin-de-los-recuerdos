@@ -1,256 +1,234 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>El Jardín de los Recuerdos</title>
-  <style>
-    :root {
-      --bubble-w: 260px;
-      --bottom-space: 180px;
-    }
-    html, body {
-      height:100%;
-      margin:0;
-      font-family: system-ui, Arial, sans-serif;
-      background: url("https://cdn.pixabay.com/photo/2015/06/19/21/24/avenue-815297_1280.jpg") center center/cover no-repeat fixed;
-      background-color: rgba(255,255,255,0.6);
-      background-blend-mode: lighten;
-    }
-    /* START */
-    #start-screen {
-      position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      background: rgba(255,255,255,0.8);
-      z-index: 400;
-      padding:20px; box-sizing:border-box;
-    }
-    #start-screen h1 { margin:0 0 12px; font-size:2.1rem; text-align:center; color:#2b6a36; }
-    .btn { padding:12px 20px; border-radius:12px; border:0; cursor:pointer; background:#57b86a; color:#fff; font-size:1rem; }
-    .btn:active { transform: scale(.98); }
-
-    /* GAME */
-    #game-container { display:none; padding:18px; box-sizing:border-box; min-height:100vh; }
-    header.appbar { display:flex; justify-content:center; align-items:center; margin-bottom:8px; }
-    header.appbar h2 { margin:0; color:#2b6a36; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
-
-    .hud { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; color:#1e6b2a; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
-    .score { font-weight:700; }
-
-    #elements { display:flex; flex-wrap:wrap; justify-content:center; gap:18px; padding-bottom: var(--bottom-space); }
-
-    .cell {
-      width:140px; height:140px; border-radius:14px; background:#ffffffcc;
-      display:flex; align-items:center; justify-content:center;
-      font-size:56px; box-shadow:0 6px 18px rgba(0,0,0,0.08);
-      touch-action: manipulation; user-select:none; -webkit-user-select:none;
-    }
-    .cell.highlight { background:#c6f6d5; transform: scale(1.03); transition: transform .12s; }
-
-    /* Jardinero */
-    #gardener-wrapper {
-      position:fixed; right:12px; bottom:12px; display:flex; flex-direction:column; align-items:center; gap:10px;
-      z-index: 900; pointer-events:none;
-    }
-    #speech-bubble {
-      width: var(--bubble-w); max-width: 85vw; background: rgba(255,255,255,0.96);
-      border:2px solid #3f3f3f; border-radius:14px; padding:10px; font-size:18px; text-align:center;
-      box-shadow:0 8px 20px rgba(0,0,0,0.12);
-    }
-    #gardener-img { width:110px; height:auto; display:block; }
-
-    .overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:800; background: rgba(255,255,255,0.95); }
-    .overlay h2 { margin:0 0 8px; color:#2b6a36; }
-
-    @media (max-width:520px){
-      .cell { width:120px; height:120px; font-size:48px; }
-      #speech-bubble { font-size:16px; width: 200px; }
-      #gardener-img { width:90px; }
-      :root { --bottom-space: 150px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Jardín de los Recuerdos 🌳</title>
+<style>
+  body {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    text-align: center;
+    background: url("https://cdn.pixabay.com/photo/2016/11/29/05/08/landscape-1867315_1280.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    margin: 0;
+  }
+  #startScreen, #gameScreen {
+    padding: 20px;
+  }
+  .btn {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: #4CAF50;
+    color: white;
+  }
+  #elements {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .element {
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.8);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .element.active {
+    transform: scale(1.2);
+    background: yellow;
+  }
+  #gardenerContainer {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    align-items: flex-end;
+  }
+  #gardener {
+    width: 120px;
+  }
+  #speechBubble {
+    max-width: 220px;
+    background: rgba(255,255,255,0.9);
+    color: #000;
+    padding: 10px;
+    border-radius: 15px;
+    margin-right: 10px;
+    font-size: 16px;
+    text-align: left;
+    display: none;
+  }
+  #scoreBoard {
+    font-size: 20px;
+    margin-top: 10px;
+  }
+</style>
 </head>
 <body>
 
-  <!-- START -->
-  <div id="start-screen" role="dialog" aria-modal="true">
-    <h1>🌳 El Jardín de los Recuerdos 🌳</h1>
-    <p style="max-width:560px;text-align:center;color:#2b6a36;">Ayuda al jardinero a cuidar su jardín recordando y repitiendo secuencias. (2 secuencias por ronda)</p>
-    <div style="margin-top:14px;">
-      <button id="startBtn" class="btn">🌸 Comenzar Juego</button>
-      <button id="musicToggleStart" class="btn" style="background:#6ca3f5;margin-left:10px;">🔊 Música</button>
-    </div>
-  </div>
+<div id="startScreen">
+  <h1>🌳 El Jardín de los Recuerdos 🌸</h1>
+  <p>Ayuda al jardinero a cuidar su jardín recordando las secuencias.</p>
+  <button class="btn" onclick="startGame()">Comenzar Juego</button>
+  <button id="musicToggleStart" class="btn">🔊 Música</button>
+</div>
 
-  <!-- GAME -->
-  <div id="game-container">
-    <header class="appbar"><h2>El Jardín de los Recuerdos</h2></header>
-    <div class="hud">
-      <div class="score" id="scoreDisplay">Puntos: 0</div>
-      <div class="lives" id="livesDisplay">Vidas: 🌸🌸🌸</div>
-    </div>
+<div id="gameScreen" style="display:none;">
+  <h2 id="roundTitle">Ronda 1</h2>
+  <div id="scoreBoard">Puntos: 0 | Vidas: 🌸🌸🌸</div>
+  <div id="elements"></div>
+  <button id="musicToggleGame" class="btn">🔊 Música</button>
+</div>
 
-    <main id="elements"></main>
+<div id="gardenerContainer">
+  <div id="speechBubble"></div>
+  <img id="gardener" src="https://cdn.pixabay.com/photo/2014/04/03/11/53/gardener-311325_1280.png" alt="Jardinero">
+</div>
 
-    <div style="margin-top:12px; display:flex; justify-content:center; gap:10px;">
-      <button id="restartBtn" class="btn" style="background:#f6a45d;">🔄 Reiniciar</button>
-      <button id="musicToggleGame" class="btn" style="background:#6ca3f5;">🔊 Música</button>
-    </div>
-  </div>
-
-  <!-- Jardinero -->
-  <div id="gardener-wrapper">
-    <div id="speech-bubble">¡Bienvenido al Jardín!</div>
-    <img id="gardener-img" src="https://cdn.pixabay.com/photo/2014/04/02/10/57/gardener-303491_1280.png" alt="Jardinero">
-  </div>
-
-  <!-- Overlays -->
-  <div id="winOverlay" class="overlay">
-    <div>
-      <h2>🌟 ¡Gracias por jugar! 🌟</h2>
-      <p>Siempre eres bienvenido en el Jardín de los Recuerdos 🌼</p>
-      <div style="margin-top:12px;"><button id="winRestart" class="btn">Volver a jugar</button></div>
-    </div>
-  </div>
-
-  <div id="loseOverlay" class="overlay">
-    <div>
-      <h2>💪 ¡Ánimo! 💪</h2>
-      <p>Inténtalo otra vez, el jardín te espera.</p>
-      <div style="margin-top:12px;"><button id="loseRestart" class="btn">Reintentar</button></div>
-    </div>
-  </div>
-
-  <!-- Audio -->
-  <audio id="bgMusic" loop src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Jahzzar/Traveller/Jahzzar_-_05_-_Siesta.mp3"></audio>
-  <audio id="sndSequence" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-  <audio id="sndCorrect" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-  <audio id="sndError" src="https://actions.google.com/sounds/v1/cartoon/metal_thud_and_clang.ogg"></audio>
+<audio id="bgMusic" loop src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Jahzzar/Traveller/Jahzzar_-_05_-_Siesta.mp3"></audio>
+<audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9f5c8b5c39.mp3?filename=correct-2-46134.mp3"></audio>
+<audio id="wrongSound" src="https://cdn.pixabay.com/download/audio/2021/09/01/audio_99e6892bb2.mp3?filename=error-126627.mp3"></audio>
 
 <script>
-const icons = ["🌹","🌻","🌷","🍎","🍊","🍓","🥕","🍆"];
-const sndSequence = document.getElementById("sndSequence");
-const sndCorrect = document.getElementById("sndCorrect");
-const sndError = document.getElementById("sndError");
+const icons = ["🌹","🌻","🌷","🌼","🍎","🍊","🍐","🍓","🥕","🍆","🌽","🍒"];
+let sequence = [];
+let playerSequence = [];
+let round = 1;
+let score = 0;
+let lives = 3;
+let subRound = 1; // controla las 2 secuencias por ronda
+const gardenerMessages = [
+  "¡Muy bien! El jardín florece gracias a ti 🌸",
+  "Atento a la próxima secuencia 👀",
+  "¡Excelente memoria! 🌳",
+  "No pasa nada, intenta de nuevo 💪",
+  "¡El jardín está hermoso gracias a tu ayuda! 🌼"
+];
+
 const bgMusic = document.getElementById("bgMusic");
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+const speechBubble = document.getElementById("speechBubble");
 
-let score = 0, lives = 3, round = 1;
-let sequence = [], playerSeq = [];
-let seqIndex = 0, showing = false, musicOn = false;
+document.getElementById("musicToggleStart").onclick = toggleMusic;
+document.getElementById("musicToggleGame").onclick = toggleMusic;
 
-const elements = document.getElementById("elements");
-const scoreDisplay = document.getElementById("scoreDisplay");
-const livesDisplay = document.getElementById("livesDisplay");
-const speechBubble = document.getElementById("speech-bubble");
-
-function updateHUD(){
-  scoreDisplay.textContent = "Puntos: " + score;
-  livesDisplay.textContent = "Vidas: " + "🌸".repeat(lives);
+function toggleMusic(){
+  if(bgMusic.paused){
+    bgMusic.play();
+    document.getElementById("musicToggleStart").textContent="🔇 Música";
+    document.getElementById("musicToggleGame").textContent="🔇 Música";
+  } else {
+    bgMusic.pause();
+    document.getElementById("musicToggleStart").textContent="🔊 Música";
+    document.getElementById("musicToggleGame").textContent="🔊 Música";
+  }
 }
-function showMessage(msg){
-  speechBubble.textContent = msg;
+
+function showMessage(text){
+  speechBubble.textContent=text;
+  speechBubble.style.display="block";
+  setTimeout(()=>{ speechBubble.style.display="none"; },4000);
 }
-function randomIcon(){ return icons[Math.floor(Math.random()*icons.length)]; }
+
+function startGame(){
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("gameScreen").style.display="block";
+  score=0; lives=3; round=1; subRound=1;
+  updateScoreBoard();
+  nextRound();
+}
+
+function updateScoreBoard(){
+  document.getElementById("scoreBoard").textContent=`Puntos: ${score} | Vidas: ${"🌸".repeat(lives)}`;
+}
+
+function nextRound(){
+  document.getElementById("roundTitle").textContent=`Ronda ${round} - Secuencia ${subRound}/2`;
+  sequence=[];
+  for(let i=0;i<round+1;i++) sequence.push(Math.floor(Math.random()*icons.length));
+  playerSequence=[];
+  renderElements();
+  showMessage("Observa con atención la secuencia...");
+  setTimeout(()=>{ playSequence(sequence); },1000);
+}
+
+function renderElements(){
+  const container=document.getElementById("elements");
+  container.innerHTML="";
+  for(let i=0;i<icons.length;i++){
+    const div=document.createElement("div");
+    div.className="element";
+    div.textContent=icons[i];
+    div.dataset.index=i;
+    div.onclick=()=>handleClick(i, div);
+    container.appendChild(div);
+  }
+}
 
 function playSequence(seq){
-  showing = true;
-  let i = 0;
-  const interval = setInterval(()=>{
+  let i=0;
+  const interval=setInterval(()=>{
     if(i<seq.length){
-      const cell = elements.children[i];
-      cell.classList.add("highlight");
-      sndSequence.play();
-      setTimeout(()=>cell.classList.remove("highlight"),500);
+      const cell=document.querySelector(`.element[data-index='${seq[i]}']`);
+      cell.classList.add("active");
+      setTimeout(()=>cell.classList.remove("active"),500);
       i++;
     } else {
       clearInterval(interval);
-      showing = false;
-      playerSeq = [];
-      seqIndex = 0;
     }
   },1000);
 }
 
-function nextRound(){
-  if(lives<=0){
-    document.getElementById("loseOverlay").style.display="flex";
-    return;
-  }
-  if(round>3){
-    document.getElementById("winOverlay").style.display="flex";
-    return;
-  }
-  elements.innerHTML="";
-  icons.forEach((ic,idx)=>{
-    const div=document.createElement("div");
-    div.className="cell";
-    div.textContent=ic;
-    div.dataset.index = idx;
-    div.addEventListener("click",()=>handleClick(idx));
-    elements.appendChild(div);
-  });
-  sequence=[];
-  for(let i=0;i<round+1;i++) sequence.push(Math.floor(Math.random()*icons.length));
-  showMessage(`Ronda ${round}: ¡Observa bien la secuencia!`);
-  setTimeout(()=>playSequence(sequence),1200);
-}
+function handleClick(index, div){
+  playerSequence.push(index);
+  div.style.transform="scale(0.9)";
+  setTimeout(()=>div.style.transform="scale(1)",200);
 
-function handleClick(idx){
-  if(showing) return;
-  if(sequence[seqIndex]===idx){
-    sndCorrect.play();
-    seqIndex++;
-    if(seqIndex===sequence.length){
-      score+=10;
-      updateHUD();
-      round++;
-      setTimeout(()=>nextRound(),1200);
-    }
-  } else {
-    sndError.play();
+  const currentStep=playerSequence.length-1;
+  if(playerSequence[currentStep]!==sequence[currentStep]){
+    wrongSound.play();
     lives--;
-    updateHUD();
+    updateScoreBoard();
+    showMessage(gardenerMessages[3]);
+    playerSequence=[];
     if(lives<=0){
-      document.getElementById("loseOverlay").style.display="flex";
+      alert("Juego terminado. Puntuación final: "+score);
+      document.location.reload();
     } else {
-      showMessage("¡Oh no! Intenta de nuevo.");
-      setTimeout(()=>playSequence(sequence),1200);
+      setTimeout(()=>nextRound(),1500);
+    }
+    return;
+  }
+
+  if(playerSequence.length===sequence.length){
+    correctSound.play();
+    score+=round*10;
+    updateScoreBoard();
+    showMessage(gardenerMessages[Math.floor(Math.random()*gardenerMessages.length)]);
+
+    if(subRound===1){
+      subRound=2;
+      setTimeout(()=>nextRound(),2000);
+    } else {
+      subRound=1;
+      round++;
+      setTimeout(()=>nextRound(),2000);
     }
   }
 }
-
-function startGame(){
-  score=0; lives=3; round=1;
-  updateHUD();
-  document.getElementById("start-screen").style.display="none";
-  document.getElementById("game-container").style.display="block";
-  toggleMusic();
-  nextRound();
-}
-
-function restartGame(){
-  document.getElementById("loseOverlay").style.display="none";
-  document.getElementById("winOverlay").style.display="none";
-  startGame();
-}
-
-async function toggleMusic(){
-  if(musicOn){
-    bgMusic.pause();
-    musicOn=false;
-  } else {
-    try { await bgMusic.play(); musicOn=true; } 
-    catch(e){ console.log("Bloqueo de música:", e); }
-  }
-}
-
-document.getElementById("startBtn").addEventListener("click", startGame);
-document.getElementById("restartBtn").addEventListener("click", restartGame);
-document.getElementById("winRestart").addEventListener("click", restartGame);
-document.getElementById("loseRestart").addEventListener("click", restartGame);
-document.getElementById("musicToggleStart").addEventListener("click", toggleMusic);
-document.getElementById("musicToggleGame").addEventListener("click", toggleMusic);
-
-updateHUD();
 </script>
 </body>
-</html> 
+</html>
