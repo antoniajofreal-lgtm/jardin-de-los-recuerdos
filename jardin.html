@@ -23,25 +23,30 @@
     .item:active { transform: scale(1.2); }
     #scoreBoard { font-size: 20px; margin: 10px; }
     #lives span { font-size: 25px; margin: 0 2px; }
-    #gardener {
+    
+    /* Contenedor del jardinero y su diálogo */
+    #gardenerContainer {
       position: fixed;
       right: 10px;
       bottom: 10px;
-      width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       z-index: 5;
     }
+    #gardener {
+      width: 120px;
+    }
     #speechBubble {
-      position: fixed;
-      right: 160px;
-      bottom: 220px; /* más arriba para no tapar íconos */
-      background: #fff;
+      background: rgba(255,255,255,0.9);
       border: 2px solid #555;
       border-radius: 15px;
       padding: 10px;
-      max-width: 220px;
-      font-size: 18px;
-      z-index: 6;
+      max-width: 240px;
+      font-size: 20px;
+      margin-bottom: 10px;
     }
+
     #startScreen, #endWin, #endLose {
       padding: 40px;
     }
@@ -87,9 +92,11 @@
     <button onclick="restartGame()">Reintentar</button>
   </div>
 
-  <!-- Jardinero y globo -->
-  <img id="gardener" src="https://cdn.pixabay.com/photo/2016/11/30/18/14/gardener-1873549_1280.png" alt="Jardinero">
-  <div id="speechBubble">¡Bienvenido al jardín!</div>
+  <!-- Jardinero con globo -->
+  <div id="gardenerContainer">
+    <div id="speechBubble">¡Bienvenido al jardín!</div>
+    <img id="gardener" src="https://cdn.pixabay.com/photo/2014/04/02/10/57/gardener-303491_1280.png" alt="Jardinero">
+  </div>
 
   <!-- Música de fondo -->
   <audio id="bg-music" src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Jahzzar/Traveller/Jahzzar_-_05_-_Siesta.mp3" loop></audio>
@@ -141,7 +148,7 @@
     document.getElementById("toggleMusic").addEventListener("click", toggleMusic);
     document.getElementById("toggleMusicGame").addEventListener("click", toggleMusic);
 
-    function setBubble(text, duration=2500){
+    function setBubble(text, duration=3500){
       gardenerBubble.innerText = text;
     }
 
@@ -179,8 +186,8 @@
     function startRound(){
       currentRound++;
       sequenceCount = 0;
-      setBubble("Ronda "+currentRound+" comienza...", 3000);
-      setTimeout(()=> playSequence(), 3000);
+      setBubble("Ronda "+currentRound+" comienza...", 3500);
+      setTimeout(()=> playSequence(), 3500);
     }
 
     function playSequence(){
@@ -192,19 +199,20 @@
         sequence.push(pool[Math.floor(Math.random()*pool.length)]);
       }
       elementsDiv.innerHTML="";
-      pool.forEach(item=>{
+      pool.forEach((item, idx)=>{
         let div = document.createElement("div");
         div.textContent = item;
         div.className="item";
-        div.onclick = ()=> handleClick(item);
+        div.dataset.value = item;
+        div.onclick = ()=> handleClick(item, idx);
         elementsDiv.appendChild(div);
       });
       showSequence();
     }
 
     async function showSequence(){
-      setBubble("Observa la secuencia...", 3000);
-      await new Promise(r=>setTimeout(r, 3000));
+      setBubble("Observa la secuencia...", 3500);
+      await new Promise(r=>setTimeout(r, 3500));
       for(let i=0; i<sequence.length; i++){
         const el = Array.from(elementsDiv.children).find(c=>c.textContent===sequence[i]);
         if(el){
@@ -217,7 +225,7 @@
       }
       setTimeout(()=>{
         listening=true;
-        setBubble("¡Tu turno! Repite la secuencia", 3000);
+        setBubble("¡Tu turno! Repite la secuencia", 3500);
       }, 1000);
     }
 
@@ -228,25 +236,25 @@
       if(playerSequence[idx]!==sequence[idx]){
         lives--;
         updateLives();
-        setBubble("¡Oh! Te equivocaste.", 3000);
+        setBubble("¡Oh! Te equivocaste.", 3500);
         playSound("sound-error");
         listening=false;
         if(lives<=0){ endLoseGame(); return; }
-        else { setTimeout(()=> playSequence(), 3000); }
+        else { setTimeout(()=> playSequence(), 3500); }
         return;
       }
       if(playerSequence.length===sequence.length){
         score+=10;
         updateScore();
-        setBubble("¡Muy bien! 🌟", 3000);
+        setBubble("¡Muy bien! 🌟", 3500);
         playSound("sound-correct");
         listening=false;
         sequenceCount++;
         if(sequenceCount < sequencesPerRound){
-          setTimeout(()=> playSequence(), 3000);
+          setTimeout(()=> playSequence(), 3500);
         } else {
           if(currentRound>=3){ endWinGame(); }
-          else { setTimeout(()=> startRound(), 3000); }
+          else { setTimeout(()=> startRound(), 3500); }
         }
       }
     }
