@@ -41,7 +41,7 @@
 <body>
   <div id="start-screen">
     <h1>🌳 El Jardín de los Recuerdos 🌳</h1>
-    <button id="startMain">🌸 Comenzar Juego 🌸</button>
+    <button id="startMain" class="btn">🌸 Comenzar Juego 🌸</button>
   </div>
 
   <div id="game-container">
@@ -90,7 +90,7 @@
         name: "Regar las Flores",
         message: "¡Hora de regar las flores! 🌸💧",
         icons: [
-          "https://freesvg.org/img/apple-fruit-icon.svg",      // ejemplo público
+          "https://freesvg.org/img/apple-fruit-icon.svg",
           "https://freesvg.org/img/banana-fruit-icon.svg",
           "https://freesvg.org/img/strawberry-fruit-icon.svg",
           "https://freesvg.org/img/lemon-fruit-icon.svg"
@@ -120,8 +120,8 @@
 
     // Sonidos
     const soundUrls = {
-      waterDrop: "https://freesound.org/data/previews/165/165206_1631209-lq.wav", // gota de agua dominio público :contentReference[oaicite:7]{index=7}
-      success: "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg", // ejemplo de sonido libre
+      waterDrop: "https://freesound.org/data/previews/165/165206_1631209-lq.wav",
+      success: "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg",
       error: "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
     };
     const audioCache = {};
@@ -134,7 +134,7 @@
         audioCache[name] = a;
       }
       audioCache[name].currentTime = 0;
-      audioCache[name].play().catch(e=>{ /*Silenciar si error*/ });
+      audioCache[name].play().catch(e=>{});
     }
 
     function startGame(){
@@ -190,7 +190,6 @@
         if(cells[seq[i]]){
           cells[seq[i]].classList.add("highlight");
           setTimeout(()=>cells[seq[i]].classList.remove("highlight"),500);
-          // sonido agua cuando aparece cada paso
           playSound("waterDrop");
         }
         i++;
@@ -216,12 +215,10 @@
         }
         return;
       }
-      // correcto
       playSound("success");
       playerIndex++;
       score += 10;
       updateScore();
-      // highlight tapped cell
       let cells = board.querySelectorAll(".cell");
       if(cells[index]){
         cells[index].classList.add("highlight");
@@ -270,6 +267,9 @@
       updateScore(); updateLives();
       startRound();
     }
+
+    // 🔥 Conectar botón de inicio
+    startMain.addEventListener("click", startGame);
   </script>
 </body>
 </html>
