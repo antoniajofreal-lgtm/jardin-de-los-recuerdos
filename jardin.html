@@ -28,17 +28,19 @@
       right: 10px;
       bottom: 10px;
       width: 120px;
+      z-index: 5;
     }
     #speechBubble {
       position: fixed;
-      right: 150px;
-      bottom: 120px;
+      right: 160px;
+      bottom: 220px; /* más arriba para no tapar íconos */
       background: #fff;
       border: 2px solid #555;
       border-radius: 15px;
       padding: 10px;
-      max-width: 250px;
+      max-width: 220px;
       font-size: 18px;
+      z-index: 6;
     }
     #startScreen, #endWin, #endLose {
       padding: 40px;
@@ -86,11 +88,11 @@
   </div>
 
   <!-- Jardinero y globo -->
-  <img id="gardener" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Gardener_cartoon.png/240px-Gardener_cartoon.png" alt="Jardinero">
+  <img id="gardener" src="https://cdn.pixabay.com/photo/2016/11/30/18/14/gardener-1873549_1280.png" alt="Jardinero">
   <div id="speechBubble">¡Bienvenido al jardín!</div>
 
   <!-- Música de fondo -->
-  <audio id="bg-music" src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Josh_Woodward/The_Wake_Up_Josh_Woodward/Josh_Woodward_-_I_Want_To_Destroy_Something_Beautiful.mp3" loop></audio>
+  <audio id="bg-music" src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Jahzzar/Traveller/Jahzzar_-_05_-_Siesta.mp3" loop></audio>
 
   <!-- Sonidos -->
   <audio id="sound-sequence" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
@@ -128,8 +130,11 @@
         bgMusic.pause();
         musicPlaying = false;
       } else {
-        bgMusic.play();
-        musicPlaying = true;
+        bgMusic.play().then(()=>{
+          musicPlaying = true;
+        }).catch(err=>{
+          console.log("Error al reproducir música:", err);
+        });
       }
     }
 
@@ -174,8 +179,8 @@
     function startRound(){
       currentRound++;
       sequenceCount = 0;
-      setBubble("Ronda "+currentRound+" comienza...", 2500);
-      setTimeout(()=> playSequence(), 2500);
+      setBubble("Ronda "+currentRound+" comienza...", 3000);
+      setTimeout(()=> playSequence(), 3000);
     }
 
     function playSequence(){
@@ -198,8 +203,8 @@
     }
 
     async function showSequence(){
-      setBubble("Observa la secuencia...", 2500);
-      await new Promise(r=>setTimeout(r, 2500));
+      setBubble("Observa la secuencia...", 3000);
+      await new Promise(r=>setTimeout(r, 3000));
       for(let i=0; i<sequence.length; i++){
         const el = Array.from(elementsDiv.children).find(c=>c.textContent===sequence[i]);
         if(el){
@@ -212,7 +217,7 @@
       }
       setTimeout(()=>{
         listening=true;
-        setBubble("¡Tu turno! Repite la secuencia", 2500);
+        setBubble("¡Tu turno! Repite la secuencia", 3000);
       }, 1000);
     }
 
@@ -223,25 +228,25 @@
       if(playerSequence[idx]!==sequence[idx]){
         lives--;
         updateLives();
-        setBubble("¡Oh! Te equivocaste.", 2500);
+        setBubble("¡Oh! Te equivocaste.", 3000);
         playSound("sound-error");
         listening=false;
         if(lives<=0){ endLoseGame(); return; }
-        else { setTimeout(()=> playSequence(), 2500); }
+        else { setTimeout(()=> playSequence(), 3000); }
         return;
       }
       if(playerSequence.length===sequence.length){
         score+=10;
         updateScore();
-        setBubble("¡Muy bien! 🌟", 2500);
+        setBubble("¡Muy bien! 🌟", 3000);
         playSound("sound-correct");
         listening=false;
         sequenceCount++;
         if(sequenceCount < sequencesPerRound){
-          setTimeout(()=> playSequence(), 2500);
+          setTimeout(()=> playSequence(), 3000);
         } else {
           if(currentRound>=3){ endWinGame(); }
-          else { setTimeout(()=> startRound(), 2500); }
+          else { setTimeout(()=> startRound(), 3000); }
         }
       }
     }
@@ -249,14 +254,14 @@
     function endWinGame(){
       gameContainer.style.display="none";
       endWin.style.display="block";
-      setBubble("¡Tu jardín florece! 🌸", 3000);
+      setBubble("¡Tu jardín florece! 🌸", 4000);
       playSound("sound-correct");
     }
 
     function endLoseGame(){
       gameContainer.style.display="none";
       endLose.style.display="block";
-      setBubble("El jardín te espera para intentarlo de nuevo 🌱", 3000);
+      setBubble("El jardín te espera para intentarlo de nuevo 🌱", 4000);
       playSound("sound-error");
     }
 
