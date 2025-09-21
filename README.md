@@ -173,7 +173,10 @@ function renderElements(){
     div.className="element";
     div.textContent=icons[i];
     div.dataset.index=i;
-    div.onclick=()=>handleClick(i, div);
+    // 🔧 corrección aquí: usar dataset en vez de i directo
+    div.addEventListener("click", () => {
+      handleClick(parseInt(div.dataset.index), div);
+    });
     container.appendChild(div);
   }
 }
